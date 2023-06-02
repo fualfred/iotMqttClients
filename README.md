@@ -7,6 +7,7 @@
 通过docker命令进行搭建
 
 1. 获取 Docker 镜像
+
  docker pull emqx/emqx:5.0.26
  
 2. 启动 Docker 容器
