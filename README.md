@@ -1,5 +1,4 @@
 # iotMqttClients
-# IotMqttClientDevice
 基于Mqtt协议编写的IOT设备模拟器（可以根据个人的业务继续修改），开发语言是Python，整体是Flask+paho.mqtt库实现的，提供多个接口用来辅助实现接口自动化测试，可根据个人业务进行修改
 
 开发测试搭建过程
