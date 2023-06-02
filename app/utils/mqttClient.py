@@ -65,13 +65,3 @@ class MQTTClient:
 
     def publish(self, topic, payload):
         self.client.publish(topic, payload)
-
-    def handle_preset_message(self, client, userdata, message):
-        payload = json.dumps(message.payload.decode())
-        request_time = re.search(r'requestTime.+?:(\d+?),', payload).group(1)
-        preset_payload = self.message_set_response.get(self.client_id, None)
-        if preset_payload:
-            logger.info(f"回复预置响应消息")
-            preset_payload = json.dumps(preset_payload).replace("${requestTime}", request_time)
-            self.publish(self.topic_rsp, preset_payload)
-            self.message_set_response.pop(self.client_id, None)
