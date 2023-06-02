@@ -19,10 +19,15 @@ docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p
 <img width="423" alt="image" src="https://github.com/fualfred/IotMqttClientDevice/assets/21330243/b6876c75-d84b-49d0-ac2b-cfdaa65663b3">
 
 buleprints: 蓝图文件 用来处理请求，包括设备连接等
+
 config：订阅topic等配置
+
 utils：工具包 包括日志、设备消息存储、mqtt客户端、mqtt设备管理类
+
 config.py: flask框架的基本配置
+
 app.py: 框架运行入口
+
 requirements.txt: 开发需要的python库，可通过pip install -r requirement.txt安装所需要的包
 
 三、提供的接口说明
