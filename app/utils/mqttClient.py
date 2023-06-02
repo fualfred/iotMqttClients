@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import paho.mqtt.client as mqtt
-from threading import Thread
 from app.utils.logger import Logger
 from app.config.config import topic_req, topic_rsp, topic_server
 import json
@@ -34,7 +33,7 @@ class MQTTClient:
     def on_message(self, client, userdata, message):
         topic = message.topic
         payload = json.dumps(message.payload.decode())
-        logger.info(f"订阅的topic:{topic}")
+        logger.info(f"订阅的topic:{topic}，来自{client}")
         logger.info(f"payload:{payload}")
         if topic == topic_server.format(self.client_id):
             self.message_storage.add_message(self.client_id, topic, payload)
@@ -55,7 +54,8 @@ class MQTTClient:
         return self.client.connect(host, port)
 
     def start_loop(self):
-        Thread(target=self.client.loop_start()).start()
+        # Thread(target=self.client.loop_start()).start()
+        self.client.loop_start()
 
     def disconnect(self):
         self.client.disconnect()

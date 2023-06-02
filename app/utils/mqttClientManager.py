@@ -42,3 +42,8 @@ class MQTTClientManager:
 
     def get_preset_message(self, client_id):
         return self.message_storage.get_preset_message(client_id)
+
+    def client_exist(self, client_id):
+        if self.clients.get(client_id, None):
+            return True
+        return False

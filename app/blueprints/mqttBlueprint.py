@@ -26,16 +26,20 @@ def connect():
         return jsonify({"code": 1, "msg": "host不能为空"})
     if port is None:
         port = "1883"
-    client = mqtt_manager.create_client(client_id)
     try:
-        rc = client.connect(host, port)
-        if rc == 0:
-            logger.info(f"MQTT connected with client ID: {client_id}")
-            client.start_loop()
+        if mqtt_manager.client_exist(client_id):
+            mqtt_manager.reconnect(client_id)
             return jsonify({"code": 0, "msg": "connected success", "client_id": client_id})
         else:
-            mqtt_manager.remove_client(client_id)
-            return jsonify({"code": rc, "msg": "connected fail", "rc": rc})
+            client = mqtt_manager.create_client(client_id)
+            rc = client.connect(host, port)
+            client.start_loop()
+            if rc == 0:
+                logger.info(f"MQTT connected with client ID: {client_id}")
+                return jsonify({"code": 0, "msg": "connected success", "client_id": client_id})
+            else:
+                mqtt_manager.remove_client(client_id)
+                return jsonify({"code": rc, "msg": "connected fail", "rc": rc})
     except Exception as e:
         mqtt_manager.remove_client(client_id)
         return jsonify({"code": 1, "msg": "connected Exception", "msg_exception": str(e)})
@@ -47,8 +51,11 @@ def offline():
     if client_id is None:
         return jsonify({"code": 1, "msg": "client_id不能为空"})
     try:
-        mqtt_manager.disconnect(client_id)
-        return jsonify({"code": 0, "msg": "success"})
+        if mqtt_manager.client_exist(client_id):
+            mqtt_manager.disconnect(client_id)
+            return jsonify({"code": 0, "msg": "success"})
+        else:
+            return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})
 
@@ -59,8 +66,11 @@ def reconnect():
     if client_id is None:
         return jsonify({"code": 1, "msg": "client_id不能为空"})
     try:
-        mqtt_manager.reconnect(client_id)
-        return jsonify({"code": 0, "msg": "success"})
+        if mqtt_manager.client_exist(client_id):
+            mqtt_manager.reconnect(client_id)
+            return jsonify({"code": 0, "msg": "success"})
+        else:
+            return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})
 
@@ -73,8 +83,11 @@ def upload():
         return jsonify({"code": 1, "msg": "client_id不能为空"})
     topic = topic_req.format(client_id)
     try:
-        mqtt_manager.publish(client_id, topic, json.dumps(upload_data))
-        return jsonify({"code": 0, "msg": "success"})
+        if mqtt_manager.client_exist(client_id):
+            mqtt_manager.publish(client_id, topic, json.dumps(upload_data))
+            return jsonify({"code": 0, "msg": "success"})
+        else:
+            return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})
 
@@ -88,10 +101,13 @@ def get_message_by_request_time():
     if client_id is None:
         return jsonify({"code": 1, "msg": "client_id不能为空"})
     try:
-        msg = mqtt_manager.get_message_by_request_time(client_id, topic, request_time)
-        if msg == 0:
-            return jsonify({"code": 1, "msg": "no msg device"})
-        return jsonify({"code": 0, "msg": msg})
+        if mqtt_manager.client_exist(client_id):
+            msg = mqtt_manager.get_message_by_request_time(client_id, topic, request_time)
+            if msg == 0:
+                return jsonify({"code": 1, "msg": "no msg device"})
+            return jsonify({"code": 0, "msg": msg})
+        else:
+            return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
         return jsonify({"code": 1, "msg": "no msg device", "errorMsg": str(e)})
 
@@ -104,10 +120,13 @@ def set_response_message():
     if client_id is None:
         return jsonify({"code": 1, "msg": "client_id不能为空"})
     try:
-        get_res = mqtt_manager.get_preset_message(client_id)
-        if get_res:
-            return jsonify({"code": 1, "msg": "暂时不支持预置多条响应消息"})
-        mqtt_manager.add_preset_message(client_id, payload)
-        return jsonify({"code": 0, "msg": "success"})
+        if mqtt_manager.client_exist(client_id):
+            get_res = mqtt_manager.get_preset_message(client_id)
+            if get_res:
+                return jsonify({"code": 1, "msg": "暂时不支持预置多条响应消息"})
+            mqtt_manager.add_preset_message(client_id, payload)
+            return jsonify({"code": 0, "msg": "success"})
+        else:
+            return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})

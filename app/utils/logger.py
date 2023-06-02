@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import logging
+import os
 
 
 class Singleton(type):
@@ -18,7 +19,7 @@ class Logger(metaclass=Singleton):
         self.logger.setLevel(level)
 
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
+        # file_handler = logging.FileHandler(os.path.dirname(os.path.dirname(__name__)))
         console_handler = logging.StreamHandler()
         console_handler.setLevel(level)
         console_handler.setFormatter(formatter)
