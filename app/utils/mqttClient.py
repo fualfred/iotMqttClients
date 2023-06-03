@@ -5,6 +5,7 @@ from app.utils.logger import Logger
 from app.config.config import topic_req, topic_rsp, topic_server
 import json
 import re
+import time
 
 logger = Logger()
 
@@ -26,7 +27,7 @@ class MQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             logger.info(f"MQTT connected with client ID: {self.client_id}")
-            # client.subscribe(self.topic_rsp)
+            client.subscribe(self.topic_rsp)
             client.subscribe(self.topic_req)
             client.subscribe(self.topic_server)
         else:
@@ -50,22 +51,16 @@ class MQTTClient:
             else:
                 res = {"code": 0, "requestTime": request_time, "result": {}}
                 logger.info(f"不是预置响应消息，正常回复")
+                time.sleep(0.3)
                 self.client.publish(topic_rsp.format(self.client_id), json.dumps(res))
 
     def on_disconnect(self, client, userdata, rc):
         if rc == 0:
             logger.info(f"设备{self.client_id}断开连接成功")
         else:
-            logger.info(f"设备{self.client_id}意外断开连接,rcCode:{rc}")
-            n = 3
-            while n < 3:
-                rc_reconnect = self.client.reconnect()
-                if rc_reconnect == 0:
-                    logger.info(f"设备{self.client_id}重连成功,rcCode:{rc}")
-                    break
-                else:
-                    n += 1
-                    logger.info(f"设备{self.client_id}重连失败,rcCode:{rc}，继续尝试")
+            logger.info(f"设备{self.client_id}意外断开连接,rcCode:{rc},将尝试重连")
+            time.sleep(0.3)
+            self.client.reconnect()
 
     def connect(self, host, port):
         return self.client.connect(host, port)
