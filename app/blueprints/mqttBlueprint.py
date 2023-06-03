@@ -35,7 +35,7 @@ def connect():
             rc = client.connect(host, port)
             client.start_loop()
             if rc == 0:
-                logger.info(f"MQTT connected with client ID: {client_id}")
+                # logger.info(f"MQTT connected with client ID: {client_id}")
                 return jsonify({"code": 0, "msg": "connected success", "client_id": client_id})
             else:
                 mqtt_manager.remove_client(client_id)

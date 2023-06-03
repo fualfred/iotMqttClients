@@ -19,6 +19,7 @@ class MQTTClient:
         self.client.on_connect = self.on_connect
         # self.client.message_callback_add(self.topic_server, self.handle_preset_message)
         self.client.on_message = self.on_message
+        self.client.on_disconnect = self.on_disconnect
         self.message_storage = message_storage
 
     def on_connect(self, client, userdata, flags, rc):
@@ -50,6 +51,12 @@ class MQTTClient:
                 logger.info(f"不是预置响应消息，正常回复")
                 self.client.publish(topic_rsp.format(self.client_id), json.dumps(res))
 
+    def on_disconnect(self, client, userdata, rc):
+        if rc == 0:
+            logger.info(f"设备{self.client_id}断开连接成功")
+        else:
+            logger.info(f"设备{self.client_id}断开连接失败,rcCode:{rc}")
+
     def connect(self, host, port):
         return self.client.connect(host, port)
 
@@ -58,6 +65,7 @@ class MQTTClient:
         self.client.loop_start()
 
     def disconnect(self):
+
         self.client.disconnect()
 
     def reconnect(self):
