@@ -27,6 +27,7 @@ class MQTTClientManager:
 
     def disconnect(self, client_id):
         self.clients.get(client_id).disconnect()
+        self.clients.pop(client_id)
 
     def reconnect(self, client_id):
         self.clients.get(client_id).reconnect()
