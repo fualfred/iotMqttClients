@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import paho.mqtt.client as mqtt
-from app.utils.logger import Logger
-from app.config.config import topic_req, topic_rsp, topic_server
+from apps.utils.logger import Logger
+from apps.config.config import topic_req, topic_rsp, topic_server
 import json
 import re
 import time

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import re
-from app.utils.logger import Logger
+from apps.utils.logger import Logger
 import re
 from threading import Lock
 

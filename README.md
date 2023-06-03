@@ -233,3 +233,14 @@ requirements.txt: 开发需要的python库，可通过pip install -r requirement
 
 实际上 需要实现IOT设备的接口自动化测试，模拟器的开发应该会比这个复杂（需要加上证书验证），但是整体思路可以参考，欢迎大家多多指教！
 
+#####  docker部署服务
+
+##### 打包镜像
+
+进入工程目录，执行docker命令
+
+docker build -t iotapps .
+
+打包完成后 启动docker容器
+
+docker run -d --name iotapps -p 8000:8000 iotapps

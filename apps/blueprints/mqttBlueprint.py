@@ -1,11 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 from flask import Blueprint, request, jsonify
-from app.utils.mqttClientManager import MQTTClientManager
-from app.utils.messageStorage import MessageStorage
-from app.utils.logger import Logger
-from app.config.config import topic_req, topic_server
+from apps.utils.mqttClientManager import MQTTClientManager
+from apps.utils.messageStorage import MessageStorage
+from apps.utils.logger import Logger
+from apps.config.config import topic_req, topic_server
 import json
+import traceback
 
 mqtt_blueprint = Blueprint('device', __name__)
 message_storage = MessageStorage()
@@ -42,6 +43,7 @@ def connect():
                 return jsonify({"code": rc, "msg": "connected fail", "rc": rc})
     except Exception as e:
         mqtt_manager.remove_client(client_id)
+        logger.error(f"Exception:{traceback.format_exc()}")
         return jsonify({"code": 1, "msg": "connected Exception", "msg_exception": str(e)})
 
 
@@ -57,6 +59,7 @@ def offline():
         else:
             return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
+        logger.error(f"Exception:{traceback.format_exc()}")
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})
 
 
@@ -72,6 +75,7 @@ def reconnect():
         else:
             return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
+        logger.error(f"Exception:{traceback.format_exc()}")
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})
 
 
@@ -89,6 +93,7 @@ def upload():
         else:
             return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
+        logger.error(f"Exception:{traceback.format_exc()}")
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})
 
 
@@ -109,6 +114,7 @@ def get_message_by_request_time():
         else:
             return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
+        logger.error(f"Exception:{traceback.format_exc()}")
         return jsonify({"code": 1, "msg": "no msg device", "errorMsg": str(e)})
 
 
@@ -129,4 +135,5 @@ def set_response_message():
         else:
             return jsonify({"code": 1, "msg": "device not exist"})
     except Exception as e:
+        logger.error(f"Exception:{traceback.format_exc()}")
         return jsonify({"code": 1, "msg": "fail", "errorMsg": str(e)})

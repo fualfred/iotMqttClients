@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-from app.utils.mqttClient import MQTTClient
+from apps.utils.mqttClient import MQTTClient
 
 
 class MQTTClientManager:
