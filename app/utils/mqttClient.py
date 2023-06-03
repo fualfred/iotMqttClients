@@ -12,6 +12,7 @@ logger = Logger()
 class MQTTClient:
     def __init__(self, client_id, message_storage):
         self.client = mqtt.Client(client_id=client_id)
+        self.client.username_pw_set(username=client_id, password=None)
         self.client_id = client_id
         self.topic_req = topic_req.format(client_id)
         self.topic_server = topic_server.format(client_id)
@@ -42,8 +43,8 @@ class MQTTClient:
             request_time = re.search(r'requestTime.+?:(\d+?),', payload).group(1)
             preset_payload = self.message_storage.get_preset_message(self.client_id)
             if preset_payload:
-                logger.info(f"回复预置响应消息")
                 preset_payload = json.dumps(preset_payload).replace('\"${requestTime}\"', request_time)
+                logger.info(f"回复预置响应消息{preset_payload}")
                 self.publish(self.topic_rsp, preset_payload)
                 self.message_storage.del_preset_message(self.client_id)
             else:
@@ -55,7 +56,16 @@ class MQTTClient:
         if rc == 0:
             logger.info(f"设备{self.client_id}断开连接成功")
         else:
-            logger.info(f"设备{self.client_id}断开连接失败,rcCode:{rc}")
+            logger.info(f"设备{self.client_id}意外断开连接,rcCode:{rc}")
+            n = 3
+            while n < 3:
+                rc_reconnect = self.client.reconnect()
+                if rc_reconnect == 0:
+                    logger.info(f"设备{self.client_id}重连成功,rcCode:{rc}")
+                    break
+                else:
+                    n += 1
+                    logger.info(f"设备{self.client_id}重连失败,rcCode:{rc}，继续尝试")
 
     def connect(self, host, port):
         return self.client.connect(host, port)
