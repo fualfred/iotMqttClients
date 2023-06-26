@@ -11,9 +11,10 @@ logger = Logger()
 
 
 class MQTTClient:
-    def __init__(self, client_id, message_storage):
+    def __init__(self, client_id, mac, message_storage):
         self.client = mqtt.Client(client_id=client_id)
-        self.client.username_pw_set(username=client_id, password=None)
+        self.mac = mac
+        self.client.username_pw_set(username=mac, password=mac)
         self.client_id = client_id
         self.topic_req = topic_req.format(client_id)
         self.topic_server = topic_server.format(client_id)
@@ -27,32 +28,35 @@ class MQTTClient:
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             logger.info(f"MQTT connected with client ID: {self.client_id}")
-            client.subscribe(self.topic_rsp)
-            client.subscribe(self.topic_req)
-            client.subscribe(self.topic_server)
         else:
             logger.info(f"MQTT connection failed with error code {rc}")
 
     def on_message(self, client, userdata, message):
         topic = message.topic
         payload = json.dumps(message.payload.decode())
-        logger.info(f"订阅的topic:{topic}，来自{client}")
+        logger.info(f"topic:{topic}，来自{client}")
         logger.info(f"payload:{payload}")
-        if topic == topic_server.format(self.client_id):
+        trace_id = re.search(r'traceId.+?:(.*?),', payload).group(1)
+        trace_id = trace_id.replace('\\"', "")
+        preset_payload = self.message_storage.get_preset_message(self.client_id)
+        if topic == topic_server and preset_payload is None:
             self.message_storage.add_message(self.client_id, topic, payload)
             logger.info(f"已保存服务下发到设备{self.client_id}的消息")
-            request_time = re.search(r'requestTime.+?:(\d+?),', payload).group(1)
-            preset_payload = self.message_storage.get_preset_message(self.client_id)
-            if preset_payload:
-                preset_payload = json.dumps(preset_payload).replace('\"${requestTime}\"', request_time)
-                logger.info(f"回复预置响应消息{preset_payload}")
-                self.publish(self.topic_rsp, preset_payload)
-                self.message_storage.del_preset_message(self.client_id)
-            else:
-                res = {"code": 0, "requestTime": request_time, "result": {}}
-                logger.info(f"不是预置响应消息，正常回复")
-                time.sleep(0.3)
-                self.client.publish(topic_rsp.format(self.client_id), json.dumps(res))
+            res = {
+                "traceId": trace_id,
+                "code": 0,
+                "msg": "ok",
+                "result": {}
+            }
+            self.client.publish(topic_rsp, json.dumps(res), qos=0)
+            time.sleep(0.1)
+            logger.info("响应消息成功")
+        if preset_payload:
+            preset_payload = json.dumps(preset_payload).replace('${TraceId}', trace_id)
+            logger.info(f"回复预置响应消息{preset_payload}")
+            self.client.publish(topic_rsp, preset_payload, qos=0)
+            self.message_storage.del_preset_message(self.client_id)
+            time.sleep(0.1)
 
     def on_disconnect(self, client, userdata, rc):
         if rc == 0:
@@ -77,4 +81,4 @@ class MQTTClient:
         self.client.reconnect()
 
     def publish(self, topic, payload):
-        self.client.publish(topic, payload)
+        self.client.publish(topic, payload, qos=1)
