@@ -8,8 +8,8 @@ class MQTTClientManager:
         self.message_storage = message_storage
         self.clients = {}
 
-    def create_client(self, client_id):
-        client = MQTTClient(client_id, self.message_storage)
+    def create_client(self, client_id, mac):
+        client = MQTTClient(client_id, mac, self.message_storage)
         # client.connect(host, port)
         self.clients[client_id] = client
         return client
@@ -35,8 +35,8 @@ class MQTTClientManager:
     def publish(self, client_id, topic, payload):
         self.clients[client_id].publish(topic, payload)
 
-    def get_message_by_request_time(self, client_id, topic, request_time):
-        return self.message_storage.get_message_by_request_time(client_id, topic, request_time)
+    def get_message_by_trace_id(self, client_id, topic, trace_id):
+        return self.message_storage.get_message_by_trace_id(client_id, topic, trace_id)
 
     def add_preset_message(self, client_id, value):
         self.message_storage.add_preset_message(client_id, value)
