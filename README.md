@@ -167,10 +167,10 @@ requirements.txt: 开发需要的python库，可通过pip install -r requirement
 
 ##### 简要描述
 
-- 通过requestTime获取服务下发到设备的消息
+- 通过TraceId获取服务下发到设备的消息
 
 ##### 请求URL
-- ` http://xx.com/api/device/getMsgByRequestTime?client_id =client_id `
+- ` http://xx.com/api/device/getMsgByTraceId?client_id =client_id `
   
 ##### 请求方式
 - POST 
@@ -180,7 +180,7 @@ requirements.txt: 开发需要的python库，可通过pip install -r requirement
 |参数名|必选|类型|说明|
 |:----    |:---|:----- |-----   |
 |client_id |是  |string |设备id   |
-| requestTime|是  |int |请求的时间戳 |
+| TraceId|是  |string |请求的string |
 
 ##### 返回示例 
 
@@ -213,7 +213,28 @@ requirements.txt: 开发需要的python库，可通过pip install -r requirement
 |参数名|必选|类型|说明|
 |:----    |:---|:----- |-----   |
 |client_id |是  |string |设备id   |
-| requestTime|是  |string |默认是{requestTime} ,包含在需要预置响应的json数据里面即可|
+| TraceId|是  |string |默认是{TraceId} ,包含在需要预置响应的json数据里面即可|
+
+#### 请求响应
+```
+{
+    "traceId": "${TraceId}",
+    "code": 0,
+    "msg": "request success",
+    "result": {
+        "subDeviceId": "cloudtestsmoke",
+        "deviceModel": "asxx110",
+        "sn": "addSubDevice",
+        "firmVersion": "0.0.1",
+        "online": 1,
+        "state": 0,
+        "tamper": 0,
+        "voltage": 0,
+        "battery": 100
+    }
+}
+
+```
 
 ##### 返回示例 
 
