@@ -215,7 +215,7 @@ requirements.txt: 开发需要的python库，可通过pip install -r requirement
 |client_id |是  |string |设备id   |
 | TraceId|是  |string |默认是{TraceId} ,包含在需要预置响应的json数据里面即可|
 
-#### 请求响应
+#### 请求示例
 ```
 {
     "traceId": "${TraceId}",
