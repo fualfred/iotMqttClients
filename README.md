@@ -223,8 +223,8 @@ requirements.txt: 开发需要的python库，可通过pip install -r requirement
     "msg": "request success",
     "result": {
         "subDeviceId": "cloudtestsmoke",
-        "deviceModel": "asxx110",
-        "sn": "addSubDevice",
+        "deviceModel": "as",
+        "sn": "addSubDe",
         "firmVersion": "0.0.1",
         "online": 1,
         "state": 0,
