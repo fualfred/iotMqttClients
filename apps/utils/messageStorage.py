@@ -4,6 +4,7 @@ import re
 from apps.utils.logger import Logger
 import re
 from threading import Lock
+import json
 
 logger = Logger()
 
@@ -21,7 +22,7 @@ class MessageStorage:
         self.messages.append({"client_id": client_id, "topic": topic, "payload": payload})
         self.lock_message.release()
 
-    def get_message_by_request_time(self, client_id, topic, request_time):
+    def get_message_by_trace_id(self, client_id, topic, trace_id):
         response_msg = []
         for msg in self.messages:
             payload = msg.get("payload")
@@ -31,9 +32,10 @@ class MessageStorage:
             logger.info(f"topic:{topic_p},client_id:{client_id_p}")
             if client_id_p == client_id and topic_p == topic:
                 logger.info(f"存在符合相关设备的信息:{payload}")
-                request_time_payload = re.search(r'requestTime.+?:(\d+?),', payload).group(1)
-                logger.info(f"requestTime:{request_time_payload}")
-                if int(request_time_payload) == int(request_time):
+                trace_id_payload = re.search(r'traceId.+?:(.*?),', payload).group(1)
+                trace_id_payload = trace_id_payload.replace('\\"', "")
+                logger.info(f"traceId:{trace_id_payload}")
+                if trace_id_payload == trace_id:
                     response_msg.append(payload)
         if len(response_msg) == 1:
             return response_msg[0]
